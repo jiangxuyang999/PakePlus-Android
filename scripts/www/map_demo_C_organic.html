@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>方案C：有机生长法</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#1a1a2e;color:#e0e0e0;font-family:'PingFang SC','Microsoft YaHei',sans-serif;padding:20px}
+h2{color:#c8a860;margin-bottom:4px}
+.tag{display:inline-block;background:#c8a860;color:#1a1a2e;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700;margin-right:6px}
+.note{font-size:12px;color:#888;margin-bottom:16px}
+.map{position:relative;width:100%;max-width:700px;aspect-ratio:4/5;background:#ede8de;margin:0 auto;border-radius:12px;overflow:hidden}
+
+/* Organic roads — slight curves via border-radius */
+.road-h{position:absolute;left:0;right:0;background:#d4ccc0;z-index:1;border-radius:2px}
+.road-v{position:absolute;top:0;bottom:0;background:#d4ccc0;z-index:1;border-radius:2px}
+.road-h.main{background:#c8bfb2;z-index:2}
+.road-v.main{background:#c8bfb2;z-index:2}
+.river{position:absolute;background:linear-gradient(180deg,#8abcd0 0%,#7aafc0 30%,#6a9eb0 50%,#7aafc0 70%,#8abcd0 100%);z-index:1;border-radius:40% 30% 30% 40% / 10% 5% 5% 10%}
+
+/* Organic blocks — slight rotation + varied shapes */
+.blk-org{position:absolute;z-index:3;overflow:hidden}
+
+/* SVG buildings — varied roof types */
+.bld-svg{position:absolute;z-index:4;border-radius:2px}
+.bld-svg .roof{position:absolute;left:0;right:0;border-radius:1px}
+.bld-svg .wall{position:absolute;left:0;right:0;bottom:0;border-radius:0 0 2px 2px}
+
+/* Roof types */
+.roof-pitch{background:linear-gradient(135deg,#5a4a3a 0%,#4a3a2c 30%,#3a2a1c 50%,#4a3a2c 70%,#5a4a3a 100%)}
+.roof-red{background:linear-gradient(135deg,#8a5040 0%,#7a4030 30%,#6a3020 50%,#7a4030 70%,#8a5040 100%)}
+.roof-flat{background:linear-gradient(180deg,#c8c4c0,#b8b4b0)}
+.roof-blue{background:linear-gradient(135deg,#5a6a7a 0%,#4a5a6a 30%,#3a4a5a 50%,#4a5a6a 70%,#5a6a7a 100%)}
+
+/* Wall types */
+.wall-cream{background:linear-gradient(180deg,#e8dcc8,#e0d4c0)}
+.wall-sand{background:linear-gradient(180deg,#d8c4a8,#d0bca0)}
+.wall-brick{background:linear-gradient(180deg,#c8a080,#c09878)}
+.wall-grey{background:linear-gradient(180deg,#d8d4d0,#d0ccc8)}
+.wall-ivory{background:linear-gradient(180deg,#f0e8d8,#e8e0d0)}
+
+/* Window patterns */
+.win-grid{position:absolute;display:grid;gap:2px;opacity:.6}
+.win-grid .w{background:#3a3a2a;border-radius:0.5px}
+
+/* Landmark */
+.lm{box-shadow:0 0 0 2px #ff8c42,0 2px 8px rgba(0,0,0,.3);z-index:8;border-radius:2px}
+.lm-label{position:absolute;font-size:7px;color:#333;font-weight:700;text-align:center;transform:translate(-50%,-50%);pointer-events:none;z-index:9;background:rgba(255,255,255,.75);padding:1px 3px;border-radius:2px}
+
+/* Trees */
+.tree{position:absolute;border-radius:50%;z-index:5;opacity:.55}
+.tree.t1{background:radial-gradient(circle,#90c080 30%,#70a060 70%,#5a8040)}
+.tree.t2{background:radial-gradient(circle,#a0c890 30%,#80b070 70%,#6a9050)}
+
+.ground{position:absolute;background:#ede8de;z-index:0}
+
+.caption{max-width:700px;margin:16px auto;font-size:13px;line-height:1.8;color:#aaa}
+.caption b{color:#c8a860}
+</style>
+</head>
+<body>
+<h2><span class="tag">方案C</span> 有机生长法 — Organic Clusters</h2>
+<div class="note">核心思路：零AI依赖，SVG程序化生成建筑，有机不规则街区，像真正的老城自然生长</div>
+
+<div class="map" id="m">
+
+  <div class="ground" style="left:0;top:0;right:0;bottom:0"></div>
+
+  <!-- ═══ RIVER — organic curve ═══ -->
+  <div class="river" style="left:61%;top:0;width:11%;height:100%"></div>
+
+  <!-- ═══ ORGANIC ROADS — varied width, slight offsets ═══ -->
+  <div class="road-h main" style="top:31%;height:3.8%;left:-1%;right:-1%"></div>
+  <div class="road-h main" style="top:63%;height:3.5%;left:-2%;right:-2%"></div>
+  <div class="road-v main" style="left:27%;width:3.5%;top:-1%;bottom:-1%"></div>
+  <div class="road-v" style="left:47%;width:2.2%;top:33%;bottom:0"></div>
+  <div class="road-h" style="top:47%;height:2%;left:29%;right:0"></div>
+
+  <!-- ═══ CLUSTER 1: Top-Left — organic group ═══ -->
+  <!-- Building 1: 2-story house, pitched roof -->
+  <div class="bld-svg" style="left:3%;top:4%;width:11%;height:13%">
+    <div class="roof roof-pitch" style="top:0;height:35%"></div>
+    <div class="wall wall-cream" style="top:35%;height:65%"></div>
+    <div class="win-grid" style="top:42%;left:15%;right:15%;bottom:22%;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr">
+      <div class="w"></div><div class="w"></div><div class="w"></div><div class="w"></div>
+    </div>
+  </div>
+  <!-- Building 2: 1-story shop, red roof -->
+  <div class="bld-svg" style="left:14.5%;top:5%;width:12%;height:10%">
+    <div class="roof roof-red" style="top:0;height:38%"></div>
+    <div class="wall wall-sand" style="top:38%;height:62%"></div>
+  </div>
+  <!-- Building 3: 3-story apt, flat roof -->
+  <div class="bld-svg" style="left:3%;top:18%;width:9%;height:11%">
+    <div class="roof roof-flat" style="top:0;height:15%"></div>
+    <div class="wall wall-grey" style="top:15%;height:85%"></div>
+    <div class="win-grid" style="top:22%;left:12%;right:12%;bottom:14%;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr 1fr">
+      <div class="w"></div><div class="w"></div><div class="w"></div><div class="w"></div><div class="w"></div><div class="w"></div>
+    </div>
+  </div>
+  <!-- Building 4: 2-story, blue roof -->
+  <div class="bld-svg" style="left:12.5%;top:17%;width:13%;height:12%">
+    <div class="roof roof-blue" style="top:0;height:32%"></div>
+    <div class="wall wall-ivory" style="top:32%;height:68%"></div>
+    <div class="win-grid" style="top:39%;left:10%;right:10%;bottom:18%;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr">
+      <div class="w"></div><div class="w"></div><div class="w"></div><div class="w"></div><div class="w"></div><div class="w"></div>
+    </div>
+  </div>
+
+  <!-- ═══ CLUSTER 2: Top-Center — tighter packing ═══ -->
+  <div class="bld-svg" style="left:31%;top:4%;width:8%;height:13%">
+    <div class="roof roof-pitch" style="top:0;height:33%"></div>
+    <div class="wall wall-cream" style="top:33%;height:67%"></div>
+    <div class="win-grid" style="top:40%;left:12%;right:12%;bottom:20%;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr">
+      <div class="w"></div><div class="w"></div><div class="w"></div><div class="w"></div>
+    </div>
+  </div>
+  <div class="bld-svg" style="left:39.5%;top:3%;width:9%;height:12%">
+    <div class="roof roof-red" style="top:0;height:35%"></div>
+    <div class="wall wall-brick" style="top:35%;height:65%"></div>
+  </div>
+  <div class="bld-svg" style="left:31%;top:18%;width:8.5%;height:11%">
+    <div class="roof roof-flat" style="top:0;height:16%"></div>
+    <div class="wall wall-grey" style="top:16%;height:84%"></div>
+    <div class="win-grid" style="top:23%;left:10%;right:10%;bottom:12%;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr 1fr">
+      <div class="w"></div><div class="w"></div><div class="w"></div><div class="w"></div><div class="w"></div><div class="w"></div>
+    </div>
+  </div>
+  <div class="bld-svg" style="left:40%;top:16%;width:8%;height:13%">
+    <div class="roof roof-pitch" style="top:0;height:30%"></div>
+    <div class="wall wall-sand" style="top:30%;height:70%"></div>
+  </div>
+
+  <!-- ═══ CLUSTER 3: Bottom-Left — densest organic ═══ -->
+  <div class="bld-svg" style="left:3%;top:38%;width:8%;height:12%">
+    <div class="roof roof-red" style="top:0;height:35%"></div>
+    <div class="wall wall-brick" style="top:35%;height:65%"></div>
+  </div>
+  <div class="bld-svg" style="left:11.5%;top:37%;width:9%;height:13%">
+    <div class="roof roof-pitch" style="top:0;height:32%"></div>
+    <div class="wall wall-cream" style="top:32%;height:68%"></div>
+    <div class="win-grid" style="top:38%;left:14%;right:14%;bottom:20%;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr">
+      <div class="w"></div><div class="w"></div><div class="w"></div><div class="w"></div>
+    </div>
+  </div>
+  <div class="bld-svg" style="left:21%;top:38%;width:7%;height:11%">
+    <div class="roof roof-blue" style="top:0;height:34%"></div>
+    <div class="wall wall-ivory" style="top:34%;height:66%"></div>
+  </div>
+  <div class="bld-svg" style="left:3%;top:51%;width:12%;height:10%">
+    <div class="roof roof-pitch" style="top:0;height:38%"></div>
+    <div class="wall wall-sand" style="top:38%;height:62%"></div>
+  </div>
+  <div class="bld-svg" style="left:15.5%;top:50%;width:8%;height:11%">
+    <div class="roof roof-red" style="top:0;height:34%"></div>
+    <div class="wall wall-cream" style="top:34%;height:66%"></div>
+  </div>
+  <div class="bld-svg" style="left:24%;top:50%;width:4%;height:11%">
+    <div class="roof roof-flat" style="top:0;height:16%"></div>
+    <div class="wall wall-grey" style="top:16%;height:84%"></div>
+  </div>
+  <div class="bld-svg" style="left:3%;top:64%;width:9%;height:10%">
+    <div class="roof roof-pitch" style="top:0;height:40%"></div>
+    <div class="wall wall-brick" style="top:40%;height:60%"></div>
+  </div>
+  <div class="bld-svg" style="left:12.5%;top:63%;width:10%;height:10%">
+    <div class="roof roof-blue" style="top:0;height:35%"></div>
+    <div class="wall wall-ivory" style="top:35%;height:65%"></div>
+  </div>
+
+  <!-- ═══ CLUSTER 4: Bottom-Center ═══ -->
+  <div class="bld-svg" style="left:31%;top:38%;width:8%;height:12%">
+    <div class="roof roof-pitch" style="top:0;height:32%"></div>
+    <div class="wall wall-cream" style="top:32%;height:68%"></div>
+    <div class="win-grid" style="top:38%;left:12%;right:12%;bottom:18%;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr">
+      <div class="w"></div><div class="w"></div><div class="w"></div><div class="w"></div>
+    </div>
+  </div>
+  <div class="bld-svg" style="left:39.5%;top:37%;width:9%;height:13%">
+    <div class="roof roof-flat" style="top:0;height:14%"></div>
+    <div class="wall wall-grey" style="top:14%;height:86%"></div>
+    <div class="win-grid" style="top:20%;left:10%;right:10%;bottom:10%;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr 1fr 1fr">
+      <div class="w"></div><div class="w"></div><div class="w"></div><div class="w"></div><div class="w"></div><div class="w"></div><div class="w"></div><div class="w"></div>
+    </div>
+  </div>
+  <div class="bld-svg" style="left:31%;top:51%;width:8%;height:10%">
+    <div class="roof roof-red" style="top:0;height:38%"></div>
+    <div class="wall wall-sand" style="top:38%;height:62%"></div>
+  </div>
+  <div class="bld-svg" style="left:39.5%;top:51%;width:8.5%;height:10%">
+    <div class="roof roof-pitch" style="top:0;height:36%"></div>
+    <div class="wall wall-cream" style="top:36%;height:64%"></div>
+  </div>
+
+  <!-- ═══ LANDMARKS ═══ -->
+  <div style="position:absolute;left:16%;top:32%;z-index:8">
+    <img class="lm" src="/assets/building_nanan_academy.png" style="width:52px;height:46px;display:block">
+    <div class="lm-label" style="left:26px;top:50px">南岸美院</div>
+  </div>
+  <div style="position:absolute;left:42%;top:30%;z-index:8">
+    <img class="lm" src="/assets/building_yuyan_home.png" style="width:46px;height:42px;display:block">
+    <div class="lm-label" style="left:23px;top:46px">语嫣家</div>
+  </div>
+
+  <!-- ═══ EAST BANK ═══ -->
+  <div class="bld-svg" style="left:73%;top:4%;width:10%;height:12%">
+    <div class="roof roof-pitch" style="top:0;height:33%"></div>
+    <div class="wall wall-cream" style="top:33%;height:67%"></div>
+  </div>
+  <div class="bld-svg" style="left:83.5%;top:3%;width:10%;height:11%">
+    <div class="roof roof-flat" style="top:0;height:14%"></div>
+    <div class="wall wall-grey" style="top:14%;height:86%"></div>
+    <div class="win-grid" style="top:20%;left:10%;right:10%;bottom:12%;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr 1fr">
+      <div class="w"></div><div class="w"></div><div class="w"></div><div class="w"></div><div class="w"></div><div class="w"></div>
+    </div>
+  </div>
+  <div class="bld-svg" style="left:73%;top:17%;width:10%;height:11%">
+    <div class="roof roof-red" style="top:0;height:36%"></div>
+    <div class="wall wall-sand" style="top:36%;height:64%"></div>
+  </div>
+  <div class="bld-svg" style="left:83.5%;top:15%;width:10%;height:13%">
+    <div class="roof roof-blue" style="top:0;height:30%"></div>
+    <div class="wall wall-ivory" style="top:30%;height:70%"></div>
+  </div>
+
+  <div style="position:absolute;left:78%;top:28%;z-index:8">
+    <img class="lm" src="/assets/building_binjiang_apt.png" style="width:48px;height:50px;display:block">
+    <div class="lm-label" style="left:24px;top:54px">婉清家</div>
+  </div>
+
+  <!-- ═══ TREES — more organic placement ═══ -->
+  <div class="tree t1" style="left:10%;top:34%;width:11px;height:11px"></div>
+  <div class="tree t2" style="left:26%;top:35%;width:8px;height:8px"></div>
+  <div class="tree t1" style="left:48%;top:34%;width:9px;height:9px"></div>
+  <div class="tree t2" style="left:11%;top:66%;width:10px;height:10px"></div>
+  <div class="tree t1" style="left:28%;top:65%;width:7px;height:7px"></div>
+  <div class="tree t2" style="left:47%;top:66%;width:8px;height:8px"></div>
+  <div class="tree t1" style="left:65%;top:34%;width:10px;height:10px"></div>
+  <div class="tree t2" style="left:65%;top:66%;width:9px;height:9px"></div>
+
+</div>
+
+<div class="caption">
+  <b>方案C：有机生长法</b><br>
+  · 纯SVG/CSS程序化生成建筑，零AI素材依赖<br>
+  · 5种墙面 + 4种屋顶 = 20种建筑外观组合<br>
+  · 窗户网格自动生成，模拟不同层数<br>
+  · 建筑大小不一、高低错落，像老城自然生长<br>
+  · 道路宽度有机变化，不用严格等宽<br>
+  · <b>需要豆包生成：零</b>（全部代码生成）<br>
+  · <b>实现复杂度：★★★★☆</b> &nbsp; <b>效果稳定度：中</b><br>
+  · ⚠ 程序化建筑缺乏AI图片的细节和质感
+</div>
+</body>
+</html>
