@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>版本案例 v2：南岸艺术区 — 真实街区布局</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#1a1a2e;color:#e0e0e0;font-family:'PingFang SC','Microsoft YaHei',sans-serif;padding:20px}
+h2{color:#ffab7a;margin-bottom:4px}
+.note{font-size:12px;color:#888;margin-bottom:16px}
+.wrap{display:flex;gap:24px;max-width:1000px;margin:0 auto;align-items:flex-start;flex-wrap:wrap}
+
+/* Map — scaled to南岸 district proportions (245:340) */
+.map{position:relative;width:490px;height:680px;background:#f9f3e6;border-radius:8px;overflow:hidden;flex-shrink:0;box-shadow:0 4px 24px rgba(0,0,0,.35)}
+
+/* Roads */
+.rd{position:absolute;background:#e4dcd0;z-index:1}
+.rd::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent,transparent 3px,rgba(180,170,155,.15) 3px,rgba(180,170,155,.15) 4px);opacity:.5}
+.rd.main{background:#d8d0c4}
+.rd.main::after{background:repeating-linear-gradient(90deg,transparent,transparent 2px,rgba(255,255,255,.08) 2px,rgba(255,255,255,.08) 3px)}
+
+/* Buildings */
+.bld{position:absolute;overflow:hidden;z-index:3;border-radius:2px}
+.bld img{width:100%;height:100%;object-fit:fill;display:block}
+.bld.lm{z-index:5;box-shadow:0 0 0 2px #ff8c42,0 2px 8px rgba(0,0,0,.3)}
+.bld.lm::after{content:attr(data-label);position:absolute;bottom:-12px;left:50%;transform:translateX(-50%);font-size:7px;color:#333;white-space:nowrap;font-weight:600;background:rgba(255,255,255,.8);padding:1px 3px;border-radius:2px;pointer-events:none}
+
+/* Trees */
+.tree{position:absolute;border-radius:50%;z-index:4;opacity:.45}
+.tree.wutong{background:radial-gradient(circle,#98c080 25%,#78a060 60%,#588040 85%)}
+
+/* Courtyard / green space */
+.green{position:absolute;border-radius:4px;z-index:2;opacity:.5}
+
+/* Legend sidebar */
+.legend{flex:1;min-width:200px;font-size:12px;line-height:1.8}
+.legend h3{color:#ffab7a;margin-bottom:8px;font-size:14px}
+.legend table{width:100%;border-collapse:collapse;font-size:11px}
+.legend td,.legend th{padding:4px 8px;text-align:left;border-bottom:1px solid rgba(255,255,255,.08)}
+.legend th{color:#888;font-size:10px;font-weight:400}
+.legend .num{color:#ffab7a;font-weight:700;text-align:center}
+.legend .tag{display:inline-block;padding:1px 6px;border-radius:2px;font-size:9px;font-weight:700}
+.tag.landmark{background:rgba(255,140,66,.25);color:#ffab7a}
+.tag.house{background:rgba(180,160,140,.25);color:#c8b898}
+.tag.shop{background:rgba(140,180,160,.25);color:#a0c8b0}
+</style>
+</head>
+<body>
+<h2>版本案例 v2：南岸艺术区 — 真实街区布局</h2>
+<div class="note">每条路两侧建筑沿街整齐排列 &nbsp;|&nbsp; 中间庭院/绿化 &nbsp;|&nbsp; 橙色框=地标POI &nbsp;|&nbsp; 基于现SVG地图坐标直接替换</div>
+
+<div class="wrap">
+
+<!-- ═══ MAP ═══ -->
+<div class="map">
+
+  <!-- ═══ ROADS ═══ -->
+  <!-- 南岸路 (main horizontal) y=801 h=8 → relative: top=(801-740)/340*100=17.9% h=8/340=2.4% -->
+  <div class="rd main" style="left:0;right:0;top:17.9%;height:2.4%"></div>
+  <!-- 梧桐街 y=866 h=8 → top=(866-740)/340=37.1% h=2.4% -->
+  <div class="rd" style="left:0;right:0;top:37.1%;height:2.4%"></div>
+  <!-- 纵路 x=126 w=8 → left=(126-5)/245=49.4% w=8/245=3.3% -->
+  <div class="rd" style="left:49.4%;top:0;bottom:0;width:3.3%"></div>
+  <!-- 小巷 y=925 h=4 → top=(925-740)/340=54.4% h=1.2% -->
+  <div class="rd" style="left:0;right:49.4%;top:54.4%;height:1.2%"></div>
+  <div class="rd" style="left:52.7%;right:0;top:54.4%;height:1.2%"></div>
+  <!-- 小巷 y=980 h=4 → top=(980-740)/340=70.6% h=1.2% -->
+  <div class="rd" style="left:0;right:49.4%;top:70.6%;height:1.2%"></div>
+  <div class="rd" style="left:52.7%;right:0;top:70.6%;height:1.2%"></div>
+  <!-- 蜿蜒小巷 y=1025 → top=(1025-740)/340=83.8% -->
+  <div class="rd" style="left:0;right:49.4%;top:83.8%;height:1%"></div>
+
+  <!-- ═══ GREEN SPACES ═══ -->
+  <div class="green" style="left:20.4%;top:17.1%;width:9.8%;height:4.7%;background:rgba(200,218,180,.5)"></div>
+  <div class="green" style="left:20.4%;top:19.7%;width:9.8%;height:1.0%;background:transparent"></div>
+  <div class="green" style="left:79.6%;top:60.3%;width:8.2%;height:7.1%;background:rgba(208,228,200,.55)"></div>
+  <div class="green" style="left:5.3%;top:95.6%;width:12.2%;height:8.8%;background:rgba(208,228,204,.5)"></div>
+
+  <!-- ═══ TREES along 梧桐街 ═══ -->
+  <div class="tree wutong" style="left:4.1%;top:36.5%;width:2.9%;height:2.1%"></div>
+  <div class="tree wutong" style="left:12.2%;top:36.2%;width:2.6%;height:1.9%"></div>
+  <div class="tree wutong" style="left:20.4%;top:36.5%;width:2.9%;height:2.1%"></div>
+  <div class="tree wutong" style="left:59.1%;top:36.2%;width:2.6%;height:1.9%"></div>
+  <div class="tree wutong" style="left:67.3%;top:36.5%;width:2.9%;height:2.1%"></div>
+  <div class="tree wutong" style="left:75.5%;top:36.2%;width:2.4%;height:1.8%"></div>
+  <div class="tree wutong" style="left:83.7%;top:36.5%;width:2.9%;height:2.1%"></div>
+
+  <!-- ═══ BLOCK 1: 南岸路以北 (y=740~801) ═══ -->
+  <!-- 沿路北侧密排 -->
+  <div class="bld" style="left:4.1%;top:5.9%;width:7.3%;height:4.7%"><img src="/assets/bg_house.png"></div>
+  <div class="bld" style="left:14.3%;top:5.3%;width:6.5%;height:4.1%"><img src="/assets/bg_shop.png"></div>
+  <div class="bld" style="left:35.5%;top:4.4%;width:8.2%;height:5.3%"><img src="/assets/bg_apt.png"></div>
+  <div class="bld" style="left:67.3%;top:6.5%;width:7.3%;height:5.9%"><img src="/assets/bg_house.png"></div>
+  <div class="bld" style="left:77.6%;top:5.3%;width:6.5%;height:6.5%"><img src="/assets/bg_apt.png"></div>
+
+  <!-- ═══ BLOCK 2: 南岸路南·梧桐街北·纵路西 (y=809~866, x=5~126) ═══ -->
+  <!-- 沿南岸路南侧 -->
+  <div class="bld" style="left:5.3%;top:21.2%;width:8.2%;height:4.7%"><img src="/assets/bg_apt.png"></div>
+  <!-- 沿梧桐街北侧 -->
+  <div class="bld" style="left:42.9%;top:24.1%;width:6.5%;height:5.9%"><img src="/assets/bg_house.png"></div>
+  <!-- 中间庭院 -->
+  <div class="green" style="left:20.4%;top:17.1%;width:9.8%;height:4.7%;background:rgba(200,218,180,.35)"></div>
+
+  <!-- ═══ BLOCK 3: 南岸路南·梧桐街北·纵路东 (y=809~866, x=134~250) ═══ -->
+  <!-- ⭐ 老洋房 - 面向南岸路 -->
+  <div class="bld lm" data-label="语嫣家" style="left:23.3%;top:16.2%;width:11.4%;height:6.5%"><img src="/assets/building_yuyan_home.png"></div>
+
+  <!-- ═══ BLOCK 4: 梧桐街南·小巷北·纵路西 (y=874~925, x=5~126) ═══ -->
+  <!-- 沿梧桐街南侧 -->
+  <div class="bld" style="left:2.9%;top:41.2%;width:6.5%;height:4.1%"><img src="/assets/bg_shop.png"></div>
+  <!-- 沿小巷北侧 -->
+  <div class="bld" style="left:26.5%;top:41.2%;width:7.3%;height:4.7%"><img src="/assets/bg_apt.png"></div>
+  <div class="bld" style="left:59.1%;top:38.5%;width:7.3%;height:4.7%"><img src="/assets/bg_house.png"></div>
+
+  <!-- ═══ BLOCK 5: 梧桐街南·小巷北·纵路东 (y=874~925, x=134~250) ═══ -->
+  <!-- ⭐ 小贝Loft - 面向梧桐街 -->
+  <div class="bld lm" data-label="小贝Loft" style="left:57.1%;top:22.1%;width:9.0%;height:5.9%"><img src="/assets/building_xiaobei_loft.png"></div>
+  <!-- ⭐ 气球海 - 东边 -->
+  <div class="bld lm" data-label="气球海" style="left:81.6%;top:27.9%;width:14.3%;height:6.5%"><img src="/assets/building_qiqiuhai.png"></div>
+
+  <!-- ═══ BLOCK 6: 小巷南·下巷北·纵路西 (y=929~980, x=5~126) ═══ -->
+  <!-- 沿小巷南侧 -->
+  <div class="bld" style="left:2.9%;top:58.2%;width:5.7%;height:3.5%"><img src="/assets/bg_shop.png"></div>
+  <div class="bld" style="left:30.6%;top:59.4%;width:6.1%;height:3.5%"><img src="/assets/bg_house.png"></div>
+  <div class="bld" style="left:3.1%;top:63.5%;width:6.5%;height:3.5%"><img src="/assets/bg_shop.png"></div>
+  <div class="bld" style="left:18.4%;top:61.2%;width:6.5%;height:3.5%"><img src="/assets/bg_apt.png"></div>
+  <!-- ⭐ 转角咖啡馆 -->
+  <div class="bld lm" data-label="咖啡馆" style="left:66.5%;top:48.5%;width:7.3%;height:4.7%"><img src="/assets/building_nanan_cafe.png"></div>
+
+  <!-- ═══ BLOCK 7: 小巷南·下巷北·纵路东 (y=929~980, x=134~250) ═══ -->
+  <div class="bld" style="left:34.7%;top:65.9%;width:7.3%;height:3.5%"><img src="/assets/bg_house.png"></div>
+  <!-- ⭐ 陶艺工坊 -->
+  <div class="bld lm" data-label="陶艺工坊" style="left:16.4%;top:54.4%;width:9.0%;height:5.3%"><img src="/assets/bg_apt.png"></div>
+
+  <!-- ═══ BLOCK 8: 下巷南 (y=984~1080) ═══ -->
+  <!-- ⭐ MAO Livehouse -->
+  <div class="bld lm" data-label="MAO" style="left:84.5%;top:63.2%;width:11.4%;height:5.9%"><img src="/assets/bg_shop.png"></div>
+  <!-- ⭐ 独立画室 -->
+  <div class="bld lm" data-label="画室" style="left:32.7%;top:72.9%;width:9.8%;height:5.3%"><img src="/assets/bg_apt.png"></div>
+  <div class="bld" style="left:1.6%;top:78.5%;width:9.0%;height:4.1%"><img src="/assets/bg_house.png"></div>
+  <div class="bld" style="left:57.1%;top:76.5%;width:6.5%;height:4.1%"><img src="/assets/bg_shop.png"></div>
+  <div class="bld" style="left:67.3%;top:79.4%;width:7.3%;height:3.5%"><img src="/assets/bg_apt.png"></div>
+
+  <!-- ═══ COURTYARDS ═══ -->
+  <div class="green" style="left:20.4%;top:30.0%;width:9.8%;height:4.7%;background:rgba(200,218,180,.35)"></div>
+  <div class="green" style="left:59.2%;top:97.4%;width:15.5%;height:8.8%;background:rgba(208,228,204,.5)"></div>
+
+</div>
+
+<!-- ═══ LEGEND ═══ -->
+<div class="legend">
+  <h3>街区布局说明</h3>
+  <p style="font-size:11px;color:#aaa;margin-bottom:12px">
+    南岸艺术区 = <b>8个街区</b>，由南岸路、梧桐街、纵路、两条小巷分割。<br>
+    每个街区沿四边道路排列建筑，中间留庭院/绿化。<br>
+    橙色框=地标POI（可点击交互）。<br>
+    建筑位置 = 100% 沿用现SVG地图坐标。
+  </p>
+
+  <table>
+  <tr><th>街区</th><th>位置</th><th>建筑</th><th class="num">栋</th></tr>
+  <tr><td>1</td><td>南岸路北</td><td>5栋沿路排</td><td class="num">5</td></tr>
+  <tr><td>2</td><td>南岸路南·纵路西</td><td>2栋 + 庭院</td><td class="num">2</td></tr>
+  <tr><td>3</td><td>南岸路南·纵路东</td><td><span class="tag landmark">老洋房</span></td><td class="num">1</td></tr>
+  <tr><td>4</td><td>梧桐街南·纵路西</td><td>3栋沿路排</td><td class="num">3</td></tr>
+  <tr><td>5</td><td>梧桐街南·纵路东</td><td><span class="tag landmark">Loft</span> <span class="tag landmark">气球海</span></td><td class="num">2</td></tr>
+  <tr><td>6</td><td>小巷间·纵路西</td><td>4栋 + <span class="tag landmark">咖啡馆</span> <span class="tag landmark">陶艺</span></td><td class="num">6</td></tr>
+  <tr><td>7</td><td>小巷间·纵路东</td><td>1栋临街</td><td class="num">1</td></tr>
+  <tr><td>8</td><td>下巷南</td><td><span class="tag landmark">MAO</span> <span class="tag landmark">画室</span> + 3栋</td><td class="num">5</td></tr>
+  <tr style="font-weight:700;border-top:2px solid rgba(255,255,255,.15)"><td colspan="3">合计</td><td class="num">25</td></tr>
+  </table>
+
+  <p style="font-size:10px;color:#888;margin-top:12px">
+    现有素材：3张通用建筑(bg_house/shop/apt) + 4张地标PNG<br>
+    待豆包生成：C2平顶住宅1张、C4坡顶小楼1张、C6商铺1张<br>
+    + 剩下3个地标(陶艺/MAO/画室)各1张 + 道路纹理2张<br>
+    = <b>共8张豆包图</b>
+  </p>
+</div>
+
+</div>
+</body>
+</html>
