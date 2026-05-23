@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>城市路网生成器</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:#1a1a2e;color:#e0e0e0;display:flex;height:100vh}
+#panel{width:320px;padding:16px;overflow-y:auto;background:#22223a;display:flex;flex-direction:column;gap:8px}
+#panel h2{font-size:18px;color:#ffab7a;margin-bottom:4px}
+#panel label{font-size:12px;color:#aaa;margin-top:4px}
+#panel input[type=range]{width:100%}
+#panel .val{float:right;color:#ffab7a}
+#panel button{width:100%;padding:10px;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600;margin-top:8px}
+.btn-gen{background:#ffab7a;color:#1a1a2e}
+.btn-exp{background:#5da88a;color:#fff}
+.btn-reset{background:#444;color:#fff}
+#main{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden}
+svg{max-width:100%;max-height:100vh}
+#jsonOut{display:none;position:fixed;bottom:0;left:320px;right:0;height:200px;background:#111;color:#0f0;overflow:auto;padding:12px;font:11px monospace;white-space:pre}
+#jsonOut.visible{display:block}
+</style>
+</head>
+<body>
+<div id="panel">
+  <h2>城市路网生成器</h2>
+  <p style="font-size:11px;color:#888">调好参数 → 导出 SVG + JSON</p>
+
+  <label>地图宽度 <span class="val" id="vW">600</span></label>
+  <input type="range" id="mapW" min="300" max="1200" value="600" step="50">
+
+  <label>地图高度 <span class="val" id="vH">1100</span></label>
+  <input type="range" id="mapH" min="500" max="2000" value="1100" step="50">
+
+  <label>街区大小 <span class="val" id="vB">40</span></label>
+  <input type="range" id="blockSize" min="20" max="80" value="40" step="5">
+
+  <label>道路宽度 <span class="val" id="vR">12</span></label>
+  <input type="range" id="roadW" min="4" max="30" value="12" step="2">
+
+  <label>河道宽度 <span class="val" id="vV">80</span></label>
+  <input type="range" id="riverW" min="40" max="200" value="80" step="5">
+
+  <label>河道弯曲 <span class="val" id="vC">30</span></label>
+  <input type="range" id="riverCurve" min="0" max="80" value="30" step="5">
+
+  <label>河位置 X <span class="val" id="vX">280</span></label>
+  <input type="range" id="riverX" min="100" max="500" value="280" step="10">
+
+  <button class="btn-gen" onclick="generate()">🔄 重新生成</button>
+  <button class="btn-exp" onclick="exportSVG()">📥 导出 SVG</button>
+  <button class="btn-exp" onclick="toggleJSON()">📋 显示 JSON 数据</button>
+  <button class="btn-reset" onclick="resetParams()">↺ 恢复默认</button>
+
+  <div style="margin-top:12px;font-size:10px;color:#666;line-height:1.6">
+    <p>导出 SVG 拿到布局参考图</p>
+    <p>导出 JSON 拿到每栋建筑的坐标</p>
+    <p>JSON 格式：{x,y,w,h,type}</p>
+  </div>
+</div>
+
+<div id="main">
+  <svg id="citySvg" viewBox="0 0 600 1100" xmlns="http://www.w3.org/2000/svg"></svg>
+</div>
+<pre id="jsonOut"></pre>
+
+<script>
+var cityData = [];
+
+function generate(){
+  var W = +document.getElementById('mapW').value;
+  var H = +document.getElementById('mapH').value;
+  var BLOCK = +document.getElementById('blockSize').value;
+  var RW = +document.getElementById('roadW').value;
+  var RIVER_W = +document.getElementById('riverW').value;
+  var RIVER_CURVE = +document.getElementById('riverCurve').value;
+  var RIVER_X = +document.getElementById('riverX').value;
+
+  // Update labels
+  document.getElementById('vW').textContent=W;
+  document.getElementById('vH').textContent=H;
+  document.getElementById('vB').textContent=BLOCK;
+  document.getElementById('vR').textContent=RW;
+  document.getElementById('vV').textContent=RIVER_W;
+  document.getElementById('vC').textContent=RIVER_CURVE;
+  document.getElementById('vX').textContent=RIVER_X;
+
+  var svg = document.getElementById('citySvg');
+  svg.setAttribute('viewBox', '0 0 '+W+' '+H);
+
+  var html = '';
+  // Background
+  html += '<rect width="'+W+'" height="'+H+'" fill="#f5f0e8"/>';
+
+  // Grid roads
+  var cols = Math.floor(W / (BLOCK + RW));
+  var rows = Math.floor(H / (BLOCK + RW));
+
+  // Horizontal roads
+  for(var r = 0; r <= rows; r++){
+    var y = r * (BLOCK + RW);
+    if(y < H) html += '<rect x="0" y="'+y+'" width="'+W+'" height="'+RW+'" fill="#d8d0c8"/>';
+  }
+  // Vertical roads
+  for(var c = 0; c <= cols; c++){
+    var x = c * (BLOCK + RW);
+    if(x < W) html += '<rect x="'+x+'" y="0" width="'+RW+'" height="'+H+'" fill="#d8d0c8"/>';
+  }
+
+  // River
+  var riverPath = 'M '+RIVER_X+' 0';
+  var segments = 12;
+  for(var i = 1; i <= segments; i++){
+    var ry = (H / segments) * i;
+    var offset = Math.sin(i * 0.8) * RIVER_CURVE;
+    riverPath += ' Q '+(RIVER_X + offset/2)+' '+(ry - H/segments/2)+' '+(RIVER_X + offset)+' '+ry;
+  }
+  // River body
+  html += '<path d="'+riverPath+'" stroke="#7aafc0" stroke-width="'+RIVER_W+'" fill="none" stroke-linecap="round" opacity="0.7"/>';
+  // River center highlight
+  html += '<path d="'+riverPath+'" stroke="rgba(255,255,255,0.2)" stroke-width="'+(RIVER_W*0.4)+'" fill="none" stroke-linecap="round"/>';
+
+  // Bridges (place where horizontal roads cross river)
+  cityData = [];
+  for(var r = 0; r <= rows; r++){
+    var y = r * (BLOCK + RW);
+    var rx = RIVER_X + Math.sin((y/H)*Math.PI*2) * RIVER_CURVE * 0.6;
+    if(rx > 0 && rx < W && y < H){
+      html += '<rect x="'+(rx-RW*2)+'" y="'+(y-RW/2)+'" width="'+(RW*4)+'" height="'+(RW*2)+'" fill="#b0a090" rx="2"/>';
+    }
+  }
+
+  // Buildings
+  cityData = [];
+  for(var r = 0; r < rows; r++){
+    for(var c = 0; c < cols; c++){
+      var bx = c * (BLOCK + RW) + RW;
+      var by = r * (BLOCK + RW) + RW;
+      // Skip if in river zone
+      var cx = bx + BLOCK/2;
+      var cy = by + BLOCK/2;
+      var riverCY = RIVER_X + Math.sin((cy/H)*Math.PI*2) * RIVER_CURVE * 0.7;
+      var distToRiver = Math.abs(cx - riverCY);
+      if(distToRiver < RIVER_W/2 + 5) continue;
+
+      // Random building size within block
+      var bw = BLOCK * (0.5 + Math.random()*0.45);
+      var bh = BLOCK * (0.4 + Math.random()*0.45);
+      var box = bx + (BLOCK - bw)/2;
+      var boy = by + (BLOCK - bh)/2;
+
+      // Building type
+      var types = ['house','house','house','shop','shop','apartment','house','house','special'];
+      var btype = types[Math.floor(Math.random() * types.length)];
+
+      // Color by type
+      var colors = {
+        house: '#e8d5c4', shop: '#f0d8b0', apartment: '#ddd8c8', special: '#d4c8b8'
+      };
+      var roofColors = {
+        house: '#c49a7a', shop: '#d4a878', apartment: '#c0bbb8', special: '#b8a898'
+      };
+      var fill = colors[btype];
+      var roof = roofColors[btype];
+
+      // Small building with roof
+      html += '<rect x="'+box+'" y="'+boy+'" width="'+bw+'" height="'+bh+'" fill="'+fill+'" rx="1"/>';
+      html += '<rect x="'+(box-2)+'" y="'+(boy-3)+'" width="'+(bw+4)+'" height="6" fill="'+roof+'" rx="1"/>';
+
+      cityData.push({x:Math.round(box), y:Math.round(boy), w:Math.round(bw), h:Math.round(bh), type:btype});
+    }
+  }
+
+  svg.innerHTML = html;
+  updateJSON();
+}
+
+function updateJSON(){
+  document.getElementById('jsonOut').textContent = JSON.stringify(cityData, null, 2);
+}
+
+function exportSVG(){
+  var svg = document.getElementById('citySvg');
+  var clone = svg.cloneNode(true);
+  var data = '<?xml version="1.0" encoding="UTF-8"?>\n' + clone.outerHTML;
+  var blob = new Blob([data], {type:'image/svg+xml'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = 'city_grid.svg'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function toggleJSON(){
+  var el = document.getElementById('jsonOut');
+  el.classList.toggle('visible');
+  if(el.classList.contains('visible')) updateJSON();
+}
+
+function resetParams(){
+  document.getElementById('mapW').value=600;
+  document.getElementById('mapH').value=1100;
+  document.getElementById('blockSize').value=40;
+  document.getElementById('roadW').value=12;
+  document.getElementById('riverW').value=80;
+  document.getElementById('riverCurve').value=30;
+  document.getElementById('riverX').value=280;
+  generate();
+}
+
+generate();
+</script>
+</body>
+</html>
