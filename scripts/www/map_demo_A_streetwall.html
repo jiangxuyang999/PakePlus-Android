@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>方案A：街墙拼块法</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#1a1a2e;color:#e0e0e0;font-family:'PingFang SC','Microsoft YaHei',sans-serif;padding:20px}
+h2{color:#ffab7a;margin-bottom:4px}
+.tag{display:inline-block;background:#ffab7a;color:#1a1a2e;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700;margin-right:6px}
+.note{font-size:12px;color:#888;margin-bottom:16px}
+.map{position:relative;width:100%;max-width:700px;aspect-ratio:4/5;background:#ede8de;margin:0 auto;border-radius:12px;overflow:hidden}
+
+/* Roads */
+.road-h{position:absolute;left:0;right:0;background:#d4ccc0;z-index:1}
+.road-v{position:absolute;top:0;bottom:0;background:#d4ccc0;z-index:1}
+.road-h.main{background:#c8bfb2;z-index:2}
+.road-v.main{background:#c8bfb2;z-index:2}
+.river{position:absolute;background:linear-gradient(180deg,#8abcd0 0%,#7aafc0 30%,#6a9eb0 50%,#7aafc0 70%,#8abcd0 100%);z-index:1}
+
+/* Block */
+.blk{position:absolute;z-index:3}
+
+/* Street wall — buildings in tight row */
+.st-wall{position:absolute;display:flex;gap:2px;z-index:4}
+.st-wall.h{flex-direction:row;align-items:stretch}
+.st-wall.v{flex-direction:column;align-items:stretch}
+.st-wall img{display:block;object-fit:cover;flex-shrink:0}
+
+/* Landmark highlight */
+.lm{box-shadow:0 0 0 2px #ff8c42,0 2px 8px rgba(0,0,0,.3);z-index:6;border-radius:2px}
+.lm-label{position:absolute;font-size:7px;color:#333;font-weight:700;text-align:center;transform:translate(-50%,-50%);pointer-events:none;z-index:7;background:rgba(255,255,255,.7);padding:1px 3px;border-radius:2px}
+
+/* Trees along road */
+.tree{position:absolute;border-radius:50%;z-index:5;opacity:.6}
+.tree.t1{background:radial-gradient(circle,#90c080 30%,#70a060 70%,#5a8040)}
+.tree.t2{background:radial-gradient(circle,#a0c890 30%,#80b070 70%,#6a9050)}
+.tree.t3{background:radial-gradient(circle,#c8b860 30%,#a89840 70%,#887830)}
+
+/* Ground texture */
+.ground{position:absolute;background:#ede8de;z-index:0}
+
+.caption{max-width:700px;margin:16px auto;font-size:13px;line-height:1.8;color:#aaa}
+.caption b{color:#ffab7a}
+</style>
+</head>
+<body>
+<h2><span class="tag">方案A</span> 街墙拼块法 — Street Wall Blocks</h2>
+<div class="note">核心思路：建筑沿道路边缘密排成"街墙"，道路是真实通道而非格子间距</div>
+
+<div class="map" id="m">
+
+  <!-- ═══ GROUND ═══ -->
+  <div class="ground" style="left:0;top:0;right:0;bottom:0"></div>
+
+  <!-- ═══ RIVER (右侧) ═══ -->
+  <div class="river" style="left:62%;top:0;width:10%;height:100%"></div>
+
+  <!-- ═══ MAIN ROADS ═══ -->
+  <div class="road-h main" style="top:30%;height:4%"></div>
+  <div class="road-h main" style="top:62%;height:4%"></div>
+  <div class="road-v main" style="left:28%;width:4%"></div>
+  <div class="road-v" style="left:48%;width:2.5%"></div>
+  <div class="road-h" style="top:46%;height:2.5%"></div>
+
+  <!-- ═══ BLOCK 1: Top-Left ═══ -->
+  <!-- North edge street wall -->
+  <div class="st-wall h" style="left:2%;top:3%;width:26%;height:12%">
+    <img src="/assets/bg_house.png" style="flex:1.2"><img src="/assets/bg_shop.png" style="flex:1">
+    <img src="/assets/bg_apt.png" style="flex:1.3"><img src="/assets/bg_house.png" style="flex:0.9">
+    <img src="/assets/bg_shop.png" style="flex:1.1">
+  </div>
+  <!-- West edge street wall -->
+  <div class="st-wall v" style="left:2%;top:17%;width:12%;height:26%">
+    <img src="/assets/bg_apt.png" style="flex:1"><img src="/assets/bg_house.png" style="flex:1.2">
+    <img src="/assets/bg_shop.png" style="flex:1"><img src="/assets/bg_house.png" style="flex:0.8">
+  </div>
+  <!-- South edge street wall -->
+  <div class="st-wall h" style="left:2%;top:32.5%;width:26%;height:12%">
+    <img src="/assets/bg_shop.png" style="flex:1"><img src="/assets/bg_house.png" style="flex:1.3">
+    <img src="/assets/bg_apt.png" style="flex:0.9"><img src="/assets/bg_house.png" style="flex:1.2">
+  </div>
+  <!-- East edge street wall -->
+  <div class="st-wall v" style="left:30.5%;top:3%;width:12%;height:26%">
+    <img src="/assets/bg_house.png" style="flex:1"><img src="/assets/bg_shop.png" style="flex:1.1">
+    <img src="/assets/bg_apt.png" style="flex:1.2"><img src="/assets/bg_house.png" style="flex:1">
+  </div>
+
+  <!-- ═══ BLOCK 2: Top-Center ═══ -->
+  <div class="st-wall h" style="left:32%;top:3%;width:16%;height:12%">
+    <img src="/assets/bg_shop.png" style="flex:1.2"><img src="/assets/bg_apt.png" style="flex:1">
+    <img src="/assets/bg_house.png" style="flex:1.1"><img src="/assets/bg_shop.png" style="flex:0.9">
+  </div>
+  <div class="st-wall v" style="left:50.5%;top:3%;width:12%;height:26%">
+    <img src="/assets/bg_apt.png" style="flex:1"><img src="/assets/bg_house.png" style="flex:1.3">
+    <img src="/assets/bg_shop.png" style="flex:0.9">
+  </div>
+  <div class="st-wall h" style="left:32%;top:32.5%;width:16%;height:12%">
+    <img src="/assets/bg_house.png" style="flex:1"><img src="/assets/bg_shop.png" style="flex:1.1">
+    <img src="/assets/bg_apt.png" style="flex:1.2">
+  </div>
+
+  <!-- ═══ BLOCK 3: Mid-Left ═══ -->
+  <div class="st-wall h" style="left:2%;top:37%;width:26%;height:11%">
+    <img src="/assets/bg_house.png" style="flex:1"><img src="/assets/bg_apt.png" style="flex:1.2">
+    <img src="/assets/bg_shop.png" style="flex:0.9"><img src="/assets/bg_house.png" style="flex:1.3">
+    <img src="/assets/bg_apt.png" style="flex:1.1">
+  </div>
+  <div class="st-wall v" style="left:2%;top:50%;width:12%;height:24%">
+    <img src="/assets/bg_shop.png" style="flex:1"><img src="/assets/bg_house.png" style="flex:1.2">
+    <img src="/assets/bg_apt.png" style="flex:0.9"><img src="/assets/bg_house.png" style="flex:1.1">
+  </div>
+
+  <!-- ═══ LANDMARK: 南岸美院 ═══ -->
+  <div style="position:absolute;left:46%;top:20%;z-index:8">
+    <img class="lm" src="/assets/building_nanan_academy.png" style="width:55px;height:48px;display:block">
+    <div class="lm-label" style="left:27px;top:52px">南岸美院</div>
+  </div>
+
+  <!-- ═══ LANDMARK: 语嫣家 ═══ -->
+  <div style="position:absolute;left:18%;top:58%;z-index:8">
+    <img class="lm" src="/assets/building_yuyan_home.png" style="width:48px;height:44px;display:block">
+    <div class="lm-label" style="left:24px;top:48px">语嫣家</div>
+  </div>
+
+  <!-- ═══ BLOCK 4: Mid-Center ═══ -->
+  <div class="st-wall h" style="left:32%;top:37%;width:16%;height:11%">
+    <img src="/assets/bg_apt.png" style="flex:1"><img src="/assets/bg_house.png" style="flex:0.9">
+    <img src="/assets/bg_shop.png" style="flex:1.2"><img src="/assets/bg_house.png" style="flex:1">
+  </div>
+  <div class="st-wall h" style="left:32%;top:50%;width:16%;height:11%">
+    <img src="/assets/bg_house.png" style="flex:1.1"><img src="/assets/bg_apt.png" style="flex:1">
+    <img src="/assets/bg_shop.png" style="flex:1.2">
+  </div>
+
+  <!-- ═══ BLOCK 5: Bottom-Left ═══ -->
+  <div class="st-wall h" style="left:2%;top:66%;width:26%;height:11%">
+    <img src="/assets/bg_shop.png" style="flex:1"><img src="/assets/bg_house.png" style="flex:1.2">
+    <img src="/assets/bg_apt.png" style="flex:0.9"><img src="/assets/bg_house.png" style="flex:1.3">
+  </div>
+  <div class="st-wall h" style="left:2%;top:79%;width:26%;height:11%">
+    <img src="/assets/bg_house.png" style="flex:1.1"><img src="/assets/bg_shop.png" style="flex:1">
+    <img src="/assets/bg_apt.png" style="flex:1.2"><img src="/assets/bg_house.png" style="flex:0.9">
+  </div>
+
+  <!-- ═══ BLOCK 6: Bottom-Center ═══ -->
+  <div class="st-wall h" style="left:32%;top:66%;width:16%;height:11%">
+    <img src="/assets/bg_apt.png" style="flex:1.2"><img src="/assets/bg_house.png" style="flex:1">
+    <img src="/assets/bg_shop.png" style="flex:0.9"><img src="/assets/bg_house.png" style="flex:1.1">
+  </div>
+
+  <!-- ═══ EAST BANK ═══ -->
+  <div class="st-wall h" style="left:73%;top:3%;width:12%;height:11%">
+    <img src="/assets/bg_house.png" style="flex:1"><img src="/assets/bg_apt.png" style="flex:1.2">
+    <img src="/assets/bg_shop.png" style="flex:0.9">
+  </div>
+  <div class="st-wall h" style="left:86%;top:3%;width:12%;height:11%">
+    <img src="/assets/bg_shop.png" style="flex:1.1"><img src="/assets/bg_house.png" style="flex:1">
+    <img src="/assets/bg_apt.png" style="flex:1.2">
+  </div>
+  <div class="st-wall h" style="left:73%;top:37%;width:12%;height:11%">
+    <img src="/assets/bg_apt.png" style="flex:1"><img src="/assets/bg_house.png" style="flex:1.2">
+    <img src="/assets/bg_shop.png" style="flex:1">
+  </div>
+  <div class="st-wall h" style="left:86%;top:37%;width:12%;height:11%">
+    <img src="/assets/bg_house.png" style="flex:1.1"><img src="/assets/bg_shop.png" style="flex:1">
+    <img src="/assets/bg_apt.png" style="flex:0.9">
+  </div>
+
+  <!-- ═══ EAST BANK LANDMARK: 婉清家 ═══ -->
+  <div style="position:absolute;left:80%;top:28%;z-index:8">
+    <img class="lm" src="/assets/building_binjiang_apt.png" style="width:50px;height:52px;display:block">
+    <div class="lm-label" style="left:25px;top:56px">婉清家</div>
+  </div>
+
+  <!-- ═══ TREES ═══ -->
+  <div class="tree t1" style="left:21%;top:15%;width:10px;height:10px"></div>
+  <div class="tree t2" style="left:27%;top:15%;width:8px;height:8px"></div>
+  <div class="tree t3" style="left:25%;top:29%;width:9px;height:9px"></div>
+  <div class="tree t1" style="left:28.5%;top:33.5%;width:7px;height:7px"></div>
+  <div class="tree t2" style="left:21%;top:48%;width:10px;height:10px"></div>
+  <div class="tree t1" style="left:27%;top:48%;width:8px;height:8px"></div>
+  <div class="tree t3" style="left:25%;top:61%;width:9px;height:9px"></div>
+  <div class="tree t2" style="left:64%;top:15%;width:9px;height:9px"></div>
+  <div class="tree t1" style="left:67%;top:29%;width:8px;height:8px"></div>
+  <div class="tree t3" style="left:64%;top:48%;width:9px;height:9px"></div>
+  <div class="tree t1" style="left:67%;top:61%;width:8px;height:8px"></div>
+  <div class="tree t2" style="left:64%;top:85%;width:9px;height:9px"></div>
+
+</div>
+
+<div class="caption">
+  <b>方案A：街墙拼块法</b><br>
+  · 建筑沿道路边缘紧密排列，形成连续"街墙"<br>
+  · 道路是真实通路（米灰色连续条带），不是格间距<br>
+  · 街区内留空（俯视下庭院不可见）<br>
+  · 地标建筑用橙色边框突出，比周围建筑大<br>
+  · <b>需要豆包生成：</b>8-10张"街墙条带"PNG（每张4-6栋联排）<br>
+  · <b>实现复杂度：★★★☆☆</b> &nbsp; <b>效果稳定度：高</b>
+</div>
+</body>
+</html>
