@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>版本案例：南岸艺术区 — 建筑+道路素材替换</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#1a1a2e;color:#e0e0e0;font-family:'PingFang SC','Microsoft YaHei',sans-serif;padding:20px}
+h2{color:#ffab7a;margin-bottom:6px;font-size:18px}
+.sub{font-size:12px;color:#888;margin-bottom:12px}
+.wrap{display:flex;gap:20px;max-width:1100px;margin:0 auto;flex-wrap:wrap}
+.map-wrap{flex:1;min-width:320px}
+.map{position:relative;width:100%;max-width:320px;aspect-ratio:250/340;background:#f9f3e6;margin:0 auto;border-radius:8px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+
+/* Road texture */
+.road{position:absolute;z-index:1}
+.road img{width:100%;height:100%;object-fit:fill;opacity:.7}
+
+/* Grid overlay for reference */
+.road-h{position:absolute;left:0;right:0;background:linear-gradient(180deg,rgba(210,200,185,.55),rgba(200,190,175,.55));z-index:1}
+.road-v{position:absolute;top:0;bottom:0;background:linear-gradient(90deg,rgba(210,200,185,.55),rgba(200,190,175,.55));z-index:1}
+
+/* Building category styles */
+.bld{position:absolute;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:2px;z-index:3;font-size:7px;font-weight:700;text-align:center;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.5)}
+.bld img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* Category colors */
+.c2{background:rgba(180,160,140,.55);border:1.5px dashed #c0a080}  /* 平顶住宅 */
+.c4{background:rgba(160,120,80,.55);border:2px dashed #a06030}     /* 坡顶小楼 */
+.c6{background:rgba(140,160,140,.55);border:1.5px dashed #80a070}  /* 商铺 */
+.lm{background:rgba(255,140,60,.45);border:2.5px solid #ff8c42;box-shadow:0 0 6px rgba(255,140,66,.5)} /* 地标 */
+
+/* Legend */
+.legend{flex:0 0 280px;background:#1e1e36;border-radius:8px;padding:16px;font-size:12px;line-height:1.8}
+.legend h3{color:#ffab7a;margin-bottom:10px;font-size:14px}
+.legend .item{display:flex;align-items:center;gap:8px;margin:6px 0;padding:4px 6px;background:rgba(255,255,255,.04);border-radius:4px}
+.legend .swatch{width:16px;height:16px;border-radius:2px;flex-shrink:0}
+.legend .swatch.c2s{background:rgba(180,160,140,.7);border:1px dashed #c0a080}
+.legend .swatch.c4s{background:rgba(160,120,80,.7);border:2px dashed #a06030}
+.legend .swatch.c6s{background:rgba(140,160,140,.7);border:1px dashed #80a070}
+.legend .swatch.lms{background:rgba(255,140,60,.6);border:2px solid #ff8c42}
+.legend .swatch.roads{background:rgba(210,200,185,.5);border:1px solid #c0b098}
+.legend .count{font-weight:700;color:#ffab7a;margin-left:auto}
+.legend .need{font-size:10px;color:#888;display:block;margin-top:1px}
+
+/* Trees */
+.tree{position:absolute;border-radius:50%;z-index:4;opacity:.5;background:radial-gradient(circle,#98c080 30%,#78a060 70%)}
+
+.section-label{font-size:10px;color:#888;margin-top:16px;margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:1px}
+.prompt-box{background:#111;color:#aacc88;font-size:10px;padding:8px;border-radius:4px;font-family:monospace;line-height:1.5;white-space:pre-wrap;word-break:break-all;margin:4px 0}
+</style>
+</head>
+<body>
+<h2>版本案例：南岸艺术区 — 建筑+道路素材替换方案</h2>
+<div class="sub">共 23 栋建筑（4 地标已替换 + 19 待替换）&nbsp;|&nbsp;4条道路可用纹理图 &nbsp;|&nbsp;SVG尺寸 250×340</div>
+
+<div class="wrap">
+  <!-- MAP -->
+  <div class="map-wrap">
+    <div class="map" id="nanan">
+
+      <!-- ═══ ROADS (with texture pattern) ═══ -->
+      <!-- 南岸路 (y=801, h=8) -->
+      <div class="road-h" style="top:23.5%;height:2.4%"></div>
+      <!-- 梧桐街 (y=866, h=8) -->
+      <div class="road-h" style="top:42.6%;height:2.4%"></div>
+      <!-- 纵路 (x=126, w=8) -->
+      <div class="road-v" style="left:48%;width:3.2%"></div>
+      <!-- 小巷 (y=925) -->
+      <div class="road-h" style="top:59.7%;height:1.2%;left:0;right:52%"></div>
+      <div class="road-h" style="top:59.7%;height:1.2%;left:52%;right:0"></div>
+      <!-- 小巷 (y=980) -->
+      <div class="road-h" style="top:76.2%;height:1.2%;left:0;right:52%"></div>
+      <div class="road-h" style="top:76.2%;height:1.2%;left:52%;right:0"></div>
+
+      <!-- ═══ LANDMARKS (已替换, 用现有PNG) ═══ -->
+      <div class="bld lm" style="left:23.8%;top:18.5%;width:11.2%;height:6.5%">老洋房
+        <img src="/assets/building_yuyan_home.png" style="position:absolute;inset:0;opacity:.5">
+      </div>
+      <div class="bld lm" style="left:56%;top:24.4%;width:8.8%;height:5.9%">小贝Loft
+        <img src="/assets/building_xiaobei_loft.png" style="position:absolute;inset:0;opacity:.5">
+      </div>
+      <div class="bld lm" style="left:80%;top:30.3%;width:14%;height:6.5%">气球海
+        <img src="/assets/building_qiqiuhai.png" style="position:absolute;inset:0;opacity:.5">
+      </div>
+      <div class="bld lm" style="left:65.2%;top:50.9%;width:7.2%;height:4.7%">咖啡馆
+        <img src="/assets/building_nanan_cafe.png" style="position:absolute;inset:0;opacity:.5">
+      </div>
+
+      <!-- ═══ 地标 (无PNG的, 标注待替换) ═══ -->
+      <div class="bld lm" style="left:15.6%;top:56.8%;width:8.8%;height:5.3%">陶艺工坊</div>
+      <div class="bld lm" style="left:82.8%;top:65.6%;width:11.2%;height:5.9%">MAO</div>
+      <div class="bld lm" style="left:31.6%;top:75.3%;width:9.6%;height:5.3%">画室</div>
+
+      <!-- ═══ C4 坡顶小楼 (6栋) ═══ -->
+      <div class="bld c4" style="left:5.2%;top:5.9%;width:7.2%;height:4.7%">C4</div>
+      <div class="bld c4" style="left:14.4%;top:5.3%;width:6.4%;height:4.1%">C4</div>
+      <div class="bld c4" style="left:42%;top:24.1%;width:6.4%;height:5.9%">C4</div>
+      <div class="bld c4" style="left:3.6%;top:40.9%;width:6.4%;height:4.1%">C4</div>
+      <div class="bld c4" style="left:52%;top:56.2%;width:6.4%;height:4.1%">C4</div>
+      <div class="bld c4" style="left:56%;top:77.9%;width:6.4%;height:4.1%">C4</div>
+
+      <!-- ═══ C2 平顶住宅/商铺 (8栋) ═══ -->
+      <div class="bld c2" style="left:34.8%;top:4.4%;width:8%;height:5.3%">C2</div>
+      <div class="bld c2" style="left:66%;top:6.5%;width:7.2%;height:5.9%">C2</div>
+      <div class="bld c2" style="left:76%;top:5.3%;width:6.4%;height:6.5%">C2</div>
+      <div class="bld c2" style="left:5.2%;top:21.2%;width:8%;height:4.7%">C2</div>
+      <div class="bld c2" style="left:58%;top:38.5%;width:7.2%;height:4.7%">C2</div>
+      <div class="bld c2" style="left:26%;top:41.2%;width:7.2%;height:4.7%">C2</div>
+      <div class="bld c2" style="left:2%;top:78.2%;width:8.8%;height:4.1%">C2</div>
+      <div class="bld c2" style="left:66%;top:80.6%;width:7.2%;height:3.5%">C2</div>
+
+      <!-- ═══ C6 小商铺 (5栋) ═══ -->
+      <div class="bld c6" style="left:2.8%;top:57.4%;width:5.6%;height:3.5%">C6</div>
+      <div class="bld c6" style="left:30%;top:59.4%;width:6%;height:3.5%">C6</div>
+      <div class="bld c6" style="left:3%;top:62.9%;width:6.4%;height:3.5%">C6</div>
+      <div class="bld c6" style="left:18%;top:60.9%;width:6.4%;height:3.5%">C6</div>
+      <div class="bld c6" style="left:34%;top:65.3%;width:7.2%;height:3.5%">C6</div>
+
+      <!-- ═══ TREES ═══ -->
+      <div class="tree" style="left:6%;top:37.6%;width:2.8%;height:2%"></div>
+      <div class="tree" style="left:14%;top:37.4%;width:2.6%;height:1.9%"></div>
+      <div class="tree" style="left:22%;top:37.6%;width:2.8%;height:2%"></div>
+      <div class="tree" style="left:60%;top:37.4%;width:2.6%;height:1.9%"></div>
+      <div class="tree" style="left:68%;top:37.6%;width:2.8%;height:2%"></div>
+    </div>
+  </div>
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <h3>建筑分类 + 豆包图需求</h3>
+
+    <div class="section-label">地标 POI (7栋)</div>
+    <div class="item"><div class="swatch lms"></div> 语嫣家/小贝Loft/气球海/咖啡馆 <span class="count">已替换</span></div>
+    <div class="item"><div class="swatch lms"></div> 陶艺工坊/MAO/画室 <span class="count">3栋待替换</span></div>
+    <div class="need">→ 需豆包生成: 陶艺工坊(22x18px)、MAO(28x20px黑灰)、画室(24x18px天窗)，均坡顶特色风格</div>
+
+    <div class="section-label">C4 坡顶小楼 — 需 1 张</div>
+    <div class="item"><div class="swatch c4s"></div> 18×16 / 16×14 / 16×20 <span class="count">6栋</span></div>
+    <div class="need">→ 豆包1张: 2层传统坡顶+暖砖墙+木格窗</div>
+    <div class="prompt-box">2-story Republican-era house, isometric 45&deg;, dark curved tile pitched roof, warm cream brick walls, wooden frame windows, modest entrance with a red lantern, pure white background, Ghibli soft lighting</div>
+
+    <div class="section-label">C2 平顶住宅 — 需 1 张</div>
+    <div class="item"><div class="swatch c2s"></div> 20×16 / 18×20 / 16×22 / 22×14 <span class="count">8栋</span></div>
+    <div class="need">→ 豆包1张: 3-4层平顶住宅+规律窗格</div>
+    <div class="prompt-box">3-story Republican-era residential building, isometric 45&deg;, warm beige stucco wall, flat roof with slight cornice, evenly-spaced rectangular windows with dark frames, simple balcony railings on 2nd floor, pure white background, Ghibli soft lighting</div>
+
+    <div class="section-label">C6 沿街小商铺 — 需 1 张</div>
+    <div class="item"><div class="swatch c6s"></div> 14×12 / 16×14 / 18×14 <span class="count">5栋</span></div>
+    <div class="need">→ 豆包1张: 1-2层底商+遮阳篷+店面</div>
+    <div class="prompt-box">1-story street shop with storefront, isometric 45&deg;, warm brick and wood facade, striped fabric awning in dark green, glass display window with small displays, second-floor small living quarters above, walkable street front, pure white background</div>
+
+    <div class="section-label">道路纹理 — 需 2-3 张</div>
+    <div class="item"><div class="swatch roads"></div> 主路(宽8-10px) / 次路(宽4-6px) / 小巷(宽3px) </div>
+    <div class="need">→ 豆包生成: 石铺路纹理、青砖路纹理、碎石路纹理，tileable 100×100px</div>
+    <div class="prompt-box">seamless tileable cobblestone road texture for game map, isometric top-down view, warm gray-brown stone paving, 1930s Chinese concession-era street, slight weathering, pure neutral background, tileable at edges, 100x100px, Ghibli-esque texture</div>
+  </div>
+</div>
+</body>
+</html>
