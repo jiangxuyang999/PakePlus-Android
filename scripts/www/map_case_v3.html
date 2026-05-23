@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>版本案例 v3：南岸艺术区 — 重新设计街区坐标</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#1a1a2e;color:#e0e0e0;font-family:'PingFang SC','Microsoft YaHei',sans-serif;padding:20px}
+h2{color:#ffab7a;margin-bottom:4px}
+.note{font-size:12px;color:#888;margin-bottom:14px}
+.wrap{display:flex;gap:20px;max-width:1050px;margin:0 auto;align-items:flex-start;flex-wrap:wrap}
+
+/* === MAP === */
+.map{position:relative;width:490px;height:680px;background:#ede8de;border-radius:8px;overflow:hidden;flex-shrink:0;box-shadow:0 4px 24px rgba(0,0,0,.35)}
+
+/* Road base + texture overlay */
+.rd{position:absolute;z-index:1}
+.rd .tex{width:100%;height:100%;object-fit:fill;opacity:.55}
+.rd-walk{position:absolute;z-index:1;background:rgba(232,224,212,.5)}
+/* Road centerline */
+.rd-line{position:absolute;z-index:2;background:rgba(255,255,255,.15);pointer-events:none}
+
+/* Building */
+.bld{position:absolute;overflow:hidden;z-index:3;border-radius:2px}
+.bld img{width:100%;height:100%;object-fit:fill;display:block}
+.bld.lm{z-index:5;box-shadow:0 0 0 2px #ff9e5e,0 2px 8px rgba(0,0,0,.35);border-radius:2px}
+.bld.lm .lbl{position:absolute;bottom:-11px;left:50%;transform:translateX(-50%);font-size:7px;color:#4a3520;white-space:nowrap;font-weight:700;background:rgba(255,255,255,.85);padding:0 3px;border-radius:2px;pointer-events:none;letter-spacing:.5px}
+
+/* Shadow under building */
+.bld::before{content:'';position:absolute;left:2px;right:-2px;bottom:-2px;height:40%;background:rgba(0,0,0,.06);z-index:-1;border-radius:50%}
+
+/* Trees */
+.tree{position:absolute;z-index:4;border-radius:50%;pointer-events:none}
+.tree img{width:100%;height:100%;object-fit:cover;display:block}
+/* CSS tree fallback */
+.tree.css{opacity:.5}
+.tree.css.wutong{background:radial-gradient(circle at 40% 35%,#a8d090 5%,#88b870 35%,#689850 70%,#487830)}
+.tree.css.banyan{background:radial-gradient(circle at 40% 35%,#90c080 5%,#70a060 35%,#508040 70%,#386828)}
+.tree.css.parasol{background:radial-gradient(circle at 40% 35%,#c8d090 5%,#a8b870 35%,#889850 70%,#687830)}
+
+/* Green space / courtyard */
+.garden{position:absolute;z-index:2;border-radius:4px;pointer-events:none}
+.garden.lawn{background:rgba(200,218,178,.4);border:1px solid rgba(180,200,160,.2)}
+.garden.flower{background:radial-gradient(ellipse,rgba(230,170,180,.25),transparent)}
+
+/* Legend */
+.legend{flex:1;min-width:220px;font-size:12px;line-height:1.8}
+.legend h3{color:#ffab7a;margin-bottom:8px;font-size:14px}
+.legend table{width:100%;border-collapse:collapse;font-size:11px}
+.legend td,.legend th{padding:4px 6px;text-align:left;border-bottom:1px solid rgba(255,255,255,.06)}
+.legend th{color:#888;font-size:10px;font-weight:400}
+.legend .h{color:#ffab7a;font-weight:700}
+</style>
+</head>
+<body>
+<h2>版本案例 v3：南岸艺术区 — 真实街区坐标设计</h2>
+<div class="note">手工设计街区坐标 · 道路用 tex_road.png 纹理 · 建筑沿路密排 · 中间庭院 · 梧桐沿街</div>
+
+<div class="wrap">
+
+<!-- ═══════════════════ MAP ═══════════════════ -->
+<div class="map">
+
+  <!-- ═══ GROUND ═══ -->
+  <!-- base ground fills the map -->
+
+  <!-- ═══ ROAD: 南岸路 (MAIN) y=112 w=22 ═══ -->
+  <div class="rd" style="left:0;right:0;top:108px;height:22px;background:#d0c8b8">
+    <img class="tex" src="/assets/tex_road.png">
+  </div>
+  <!-- sidewalk strips -->
+  <div class="rd-walk" style="left:0;right:0;top:106px;height:2px"></div>
+  <div class="rd-walk" style="left:0;right:0;top:130px;height:2px"></div>
+  <!-- centerline dash -->
+  <div class="rd-line" style="left:5%;right:5%;top:118px;height:1px;background:rgba(255,255,255,.3)"></div>
+
+  <!-- ═══ ROAD: 梧桐街 y=272 w=16 ═══ -->
+  <div class="rd" style="left:0;right:0;top:268px;height:16px;background:#d4ccc0">
+    <img class="tex" src="/assets/tex_road.png">
+  </div>
+  <div class="rd-walk" style="left:0;right:0;top:266px;height:2px"></div>
+  <div class="rd-walk" style="left:0;right:0;top:284px;height:2px"></div>
+
+  <!-- ═══ ROAD: 纵路 (VERTICAL MAIN) x=242 w=18 ═══ -->
+  <div class="rd" style="left:236px;top:0;bottom:0;width:18px;background:#d0c8b8">
+    <img class="tex" src="/assets/tex_road.png">
+  </div>
+  <div class="rd-walk" style="left:234px;top:0;bottom:0;width:2px"></div>
+  <div class="rd-walk" style="left:254px;top:0;bottom:0;width:2px"></div>
+
+  <!-- ═══ ALLEY: 画室巷 y=410 w=10 ═══ -->
+  <div class="rd" style="left:0;right:254px;top:406px;height:10px;background:#ddd8cc">
+    <img class="tex" src="/assets/tex_road.png">
+  </div>
+  <div class="rd" style="left:254px;right:0;top:406px;height:10px;background:#ddd8cc">
+    <img class="tex" src="/assets/tex_road.png">
+  </div>
+
+  <!-- ═══ ALLEY: 工坊巷 y=520 w=8 ═══ -->
+  <div class="rd" style="left:0;right:254px;top:516px;height:8px;background:#e0dcd0">
+    <img class="tex" src="/assets/tex_road.png">
+  </div>
+  <div class="rd" style="left:254px;right:0;top:516px;height:8px;background:#e0dcd0">
+    <img class="tex" src="/assets/tex_road.png">
+  </div>
+
+  <!-- ═══ ALLEY: 南滨巷 y=610 w=6 ═══ -->
+  <div class="rd" style="left:0;right:0;top:608px;height:6px;background:#e4e0d4">
+    <img class="tex" src="/assets/tex_road.png">
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- BLOCK 1: 南岸路北·纵路西 (top-left)       -->
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- Along top edge (map north boundary) -->
+  <div class="bld" style="left:8px;top:10px;width:44px;height:32px"><img src="/assets/bg_house.png"></div>
+  <div class="bld" style="left:58px;top:14px;width:40px;height:28px"><img src="/assets/bg_shop.png"></div>
+  <div class="bld" style="left:104px;top:8px;width:48px;height:34px"><img src="/assets/bg_apt.png"></div>
+  <!-- Along west edge -->
+  <div class="bld" style="left:6px;top:50px;width:38px;height:30px"><img src="/assets/bg_house.png"></div>
+  <!-- Along 南岸路 north edge (facing south) -->
+  <div class="bld" style="left:12px;top:80px;width:42px;height:26px"><img src="/assets/bg_shop.png"></div>
+  <div class="bld" style="left:60px;top:78px;width:46px;height:28px"><img src="/assets/bg_apt.png"></div>
+  <div class="bld" style="left:112px;top:82px;width:38px;height:24px"><img src="/assets/bg_house.png"></div>
+  <!-- Along 纵路 west edge (facing east) -->
+  <div class="bld" style="left:198px;top:10px;width:32px;height:42px"><img src="/assets/bg_apt.png"></div>
+  <div class="bld" style="left:200px;top:58px;width:30px;height:38px"><img src="/assets/bg_house.png"></div>
+  <!-- Interior courtyard -->
+  <div class="garden lawn" style="left:18px;top:30px;width:46px;height:28px"></div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- BLOCK 2: 南岸路北·纵路东 (top-right)      -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="bld" style="left:260px;top:10px;width:48px;height:34px"><img src="/assets/bg_house.png"></div>
+  <div class="bld" style="left:314px;top:14px;width:42px;height:28px"><img src="/assets/bg_shop.png"></div>
+  <div class="bld" style="left:362px;top:8px;width:44px;height:32px"><img src="/assets/bg_apt.png"></div>
+  <div class="bld" style="left:412px;top:12px;width:38px;height:30px"><img src="/assets/bg_house.png"></div>
+  <!-- Along 南岸路 -->
+  <div class="bld" style="left:262px;top:80px;width:44px;height:26px"><img src="/assets/bg_apt.png"></div>
+  <div class="bld" style="left:312px;top:78px;width:40px;height:28px"><img src="/assets/bg_shop.png"></div>
+  <div class="bld" style="left:358px;top:82px;width:42px;height:24px"><img src="/assets/bg_house.png"></div>
+  <div class="bld" style="left:406px;top:80px;width:36px;height:26px"><img src="/assets/bg_apt.png"></div>
+  <!-- Along east edge -->
+  <div class="bld" style="left:448px;top:50px;width:34px;height:36px"><img src="/assets/bg_house.png"></div>
+  <!-- Courtyard -->
+  <div class="garden lawn" style="left:280px;top:30px;width:50px;height:30px"></div>
+  <div class="garden flower" style="left:350px;top:40px;width:30px;height:20px"></div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- BLOCK 3: 南岸路南·梧桐街北·纵路西        -->
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- Along 南岸路 south edge -->
+  <div class="bld" style="left:14px;top:136px;width:40px;height:28px"><img src="/assets/bg_shop.png"></div>
+  <div class="bld" style="left:60px;top:134px;width:44px;height:30px"><img src="/assets/bg_house.png"></div>
+  <div class="bld" style="left:110px;top:138px;width:48px;height:26px"><img src="/assets/bg_apt.png"></div>
+  <div class="bld" style="left:164px;top:136px;width:38px;height:28px"><img src="/assets/bg_shop.png"></div>
+  <!-- Along 纵路 west -->
+  <div class="bld" style="left:204px;top:140px;width:26px;height:44px"><img src="/assets/bg_house.png"></div>
+  <div class="bld" style="left:206px;top:192px;width:24px;height:40px"><img src="/assets/bg_apt.png"></div>
+  <!-- Along 梧桐街 north -->
+  <div class="bld" style="left:16px;top:240px;width:42px;height:26px"><img src="/assets/bg_house.png"></div>
+  <div class="bld" style="left:64px;top:242px;width:46px;height:24px"><img src="/assets/bg_shop.png"></div>
+  <div class="bld" style="left:116px;top:238px;width:40px;height:28px"><img src="/assets/bg_apt.png"></div>
+  <!-- ⭐ 老洋房 (south side of 南岸路, facing south) -->
+  <div class="bld lm" style="left:155px;top:145px;width:44px;height:34px"><img src="/assets/building_yuyan_home.png"><span class="lbl">语嫣家</span></div>
+  <!-- Courtyards -->
+  <div class="garden lawn" style="left:18px;top:172px;width:52px;height:36px"></div>
+  <div class="garden flower" style="left:100px;top:178px;width:30px;height:20px"></div>
+  <!-- Small tree in courtyard -->
+  <div class="tree css wutong" style="left:40px;top:185px;width:14px;height:14px"></div>
+  <div class="tree css wutong" style="left:64px;top:190px;width:11px;height:11px"></div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- BLOCK 4: 南岸路南·梧桐街北·纵路东        -->
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- Along 南岸路 south -->
+  <div class="bld" style="left:262px;top:136px;width:44px;height:28px"><img src="/assets/bg_apt.png"></div>
+  <div class="bld" style="left:312px;top:134px;width:40px;height:30px"><img src="/assets/bg_house.png"></div>
+  <div class="bld" style="left:358px;top:138px;width:42px;height:26px"><img src="/assets/bg_shop.png"></div>
+  <div class="bld" style="left:408px;top:136px;width:38px;height:28px"><img src="/assets/bg_house.png"></div>
+  <!-- Along east edge -->
+  <div class="bld" style="left:452px;top:140px;width:30px;height:42px"><img src="/assets/bg_apt.png"></div>
+  <!-- Along 梧桐街 north -->
+  <div class="bld" style="left:262px;top:240px;width:46px;height:26px"><img src="/assets/bg_shop.png"></div>
+  <div class="bld" style="left:314px;top:242px;width:42px;height:24px"><img src="/assets/bg_house.png"></div>
+  <div class="bld" style="left:362px;top:238px;width:44px;height:28px"><img src="/assets/bg_apt.png"></div>
+  <div class="bld" style="left:414px;top:240px;width:36px;height:26px"><img src="/assets/bg_shop.png"></div>
+  <!-- Courtyard -->
+  <div class="garden lawn" style="left:275px;top:175px;width:54px;height:34px"></div>
+  <div class="tree css banyan" style="left:295px;top:185px;width:13px;height:13px"></div>
+  <div class="tree css banyan" style="left:318px;top:190px;width:10px;height:10px"></div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- BLOCK 5: 梧桐街南·画室巷北·纵路西        -->
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- Along 梧桐街 south -->
+  <div class="bld" style="left:12px;top:290px;width:44px;height:26px"><img src="/assets/bg_shop.png"></div>
+  <div class="bld" style="left:62px;top:292px;width:40px;height:24px"><img src="/assets/bg_house.png"></div>
+  <div class="bld" style="left:108px;top:288px;width:48px;height:28px"><img src="/assets/bg_apt.png"></div>
+  <div class="bld" style="left:162px;top:290px;width:38px;height:26px"><img src="/assets/bg_shop.png"></div>
+  <!-- Along 纵路 west -->
+  <div class="bld" style="left:206px;top:294px;width:24px;height:40px"><img src="/assets/bg_house.png"></div>
+  <!-- Along 画室巷 north -->
+  <div class="bld" style="left:14px;top:380px;width:40px;height:24px"><img src="/assets/bg_apt.png"></div>
+  <div class="bld" style="left:60px;top:382px;width:44px;height:22px"><img src="/assets/bg_house.png"></div>
+  <div class="bld" style="left:110px;top:378px;width:42px;height:26px"><img src="/assets/bg_shop.png"></div>
+  <!-- ⭐ 小贝Loft -->
+  <div class="bld lm" style="left:164px;top:296px;width:36px;height:32px"><img src="/assets/building_xiaobei_loft.png"><span class="lbl">小贝Loft</span></div>
+  <!-- Courtyard -->
+  <div class="garden lawn" style="left:18px;top:325px;width:48px;height:32px"></div>
+  <div class="tree css wutong" style="left:38px;top:335px;width:12px;height:12px"></div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- BLOCK 6: 梧桐街南·画室巷北·纵路东        -->
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- Along 梧桐街 south -->
+  <div class="bld" style="left:262px;top:290px;width:42px;height:26px"><img src="/assets/bg_house.png"></div>
+  <div class="bld" style="left:310px;top:292px;width:46px;height:24px"><img src="/assets/bg_shop.png"></div>
+  <div class="bld" style="left:362px;top:288px;width:40px;height:28px"><img src="/assets/bg_apt.png"></div>
+  <div class="bld" style="left:410px;top:290px;width:38px;height:26px"><img src="/assets/bg_house.png"></div>
+  <!-- Along east edge -->
+  <div class="bld" style="left:454px;top:296px;width:28px;height:38px"><img src="/assets/bg_apt.png"></div>
+  <!-- Along 画室巷 north -->
+  <div class="bld" style="left:262px;top:380px;width:44px;height:24px"><img src="/assets/bg_shop.png"></div>
+  <div class="bld" style="left:312px;top:382px;width:40px;height:22px"><img src="/assets/bg_house.png"></div>
+  <div class="bld" style="left:360px;top:378px;width:42px;height:26px"><img src="/assets/bg_apt.png"></div>
+  <!-- ⭐ 气球海 (facing 梧桐街) -->
+  <div class="bld lm" style="left:415px;top:296px;width:50px;height:30px"><img src="/assets/building_qiqiuhai.png"><span class="lbl">气球海</span></div>
+  <!-- Courtyard -->
+  <div class="garden lawn" style="left:275px;top:325px;width:48px;height:30px"></div>
+  <div class="tree css banyan" style="left:295px;top:335px;width:11px;height:11px"></div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- BLOCK 7: 画室巷南·工坊巷北·纵路西        -->
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- Along 画室巷 south -->
+  <div class="bld" style="left:12px;top:420px;width:36px;height:22px"><img src="/assets/bg_shop.png"></div>
+  <div class="bld" style="left:54px;top:418px;width:44px;height:24px"><img src="/assets/bg_house.png"></div>
+  <div class="bld" style="left:104px;top:422px;width:38px;height:22px"><img src="/assets/bg_apt.png"></div>
+  <!-- Along 纵路 west -->
+  <div class="bld" style="left:208px;top:422px;width:22px;height:36px"><img src="/assets/bg_shop.png"></div>
+  <!-- Along 工坊巷 north -->
+  <div class="bld" style="left:14px;top:492px;width:42px;height:22px"><img src="/assets/bg_apt.png"></div>
+  <div class="bld" style="left:62px;top:490px;width:38px;height:24px"><img src="/assets/bg_house.png"></div>
+  <div class="bld" style="left:106px;top:494px;width:44px;height:20px"><img src="/assets/bg_shop.png"></div>
+  <!-- ⭐ 转角咖啡馆 -->
+  <div class="bld lm" style="left:160px;top:420px;width:34px;height:28px"><img src="/assets/building_nanan_cafe.png"><span class="lbl">咖啡馆</span></div>
+  <!-- ⭐ 陶艺工坊 (facing east, near纵路) -->
+  <div class="bld lm" style="left:170px;top:458px;width:40px;height:28px"><img src="/assets/bg_apt.png"><span class="lbl">陶艺工坊</span></div>
+  <!-- Courtyard -->
+  <div class="garden lawn" style="left:16px;top:450px;width:40px;height:28px"></div>
+  <div class="garden flower" style="left:68px;top:460px;width:24px;height:14px"></div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- BLOCK 8: 画室巷南·工坊巷北·纵路东        -->
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- Along 画室巷 south -->
+  <div class="bld" style="left:264px;top:420px;width:44px;height:22px"><img src="/assets/bg_house.png"></div>
+  <div class="bld" style="left:314px;top:418px;width:40px;height:24px"><img src="/assets/bg_shop.png"></div>
+  <div class="bld" style="left:362px;top:422px;width:42px;height:22px"><img src="/assets/bg_apt.png"></div>
+  <div class="bld" style="left:412px;top:420px;width:36px;height:24px"><img src="/assets/bg_house.png"></div>
+  <!-- Along east edge -->
+  <div class="bld" style="left:456px;top:424px;width:26px;height:34px"><img src="/assets/bg_shop.png"></div>
+  <!-- Along 工坊巷 north -->
+  <div class="bld" style="left:264px;top:492px;width:46px;height:22px"><img src="/assets/bg_apt.png"></div>
+  <div class="bld" style="left:316px;top:490px;width:40px;height:24px"><img src="/assets/bg_house.png"></div>
+  <div class="bld" style="left:364px;top:494px;width:44px;height:20px"><img src="/assets/bg_shop.png"></div>
+  <div class="garden lawn" style="left:275px;top:452px;width:46px;height:25px"></div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- BLOCK 9: 工坊巷南·南滨巷北·纵路西        -->
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- Along 工坊巷 south -->
+  <div class="bld" style="left:12px;top:530px;width:40px;height:22px"><img src="/assets/bg_house.png"></div>
+  <div class="bld" style="left:58px;top:528px;width:44px;height:24px"><img src="/assets/bg_shop.png"></div>
+  <div class="bld" style="left:108px;top:532px;width:36px;height:22px"><img src="/assets/bg_apt.png"></div>
+  <!-- Along south滨巷 north -->
+  <div class="bld" style="left:14px;top:584px;width:44px;height:22px"><img src="/assets/bg_shop.png"></div>
+  <div class="bld" style="left:64px;top:586px;width:40px;height:20px"><img src="/assets/bg_house.png"></div>
+  <div class="bld" style="left:112px;top:582px;width:42px;height:24px"><img src="/assets/bg_apt.png"></div>
+  <!-- ⭐ 独立画室 -->
+  <div class="bld lm" style="left:170px;top:540px;width:40px;height:30px"><img src="/assets/bg_apt.png"><span class="lbl">独立画室</span></div>
+  <!-- Courtyard -->
+  <div class="garden lawn" style="left:16px;top:560px;width:44px;height:18px"></div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- BLOCK 10: 工坊巷南·南滨巷北·纵路东       -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="bld" style="left:264px;top:530px;width:42px;height:22px"><img src="/assets/bg_apt.png"></div>
+  <div class="bld" style="left:312px;top:528px;width:44px;height:24px"><img src="/assets/bg_house.png"></div>
+  <div class="bld" style="left:364px;top:532px;width:40px;height:22px"><img src="/assets/bg_shop.png"></div>
+  <div class="bld" style="left:264px;top:584px;width:46px;height:22px"><img src="/assets/bg_house.png"></div>
+  <div class="bld" style="left:318px;top:586px;width:42px;height:20px"><img src="/assets/bg_apt.png"></div>
+  <div class="bld" style="left:370px;top:582px;width:44px;height:24px"><img src="/assets/bg_shop.png"></div>
+  <!-- ⭐ MAO Livehouse -->
+  <div class="bld lm" style="left:424px;top:535px;width:44px;height:28px"><img src="/assets/bg_shop.png"><span class="lbl">MAO</span></div>
+  <!-- Courtyard -->
+  <div class="garden lawn" style="left:278px;top:560px;width:42px;height:18px"></div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- BLOCK 11: 南滨巷南 (bottom strip)          -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="bld" style="left:10px;top:624px;width:44px;height:28px"><img src="/assets/bg_house.png"></div>
+  <div class="bld" style="left:60px;top:622px;width:40px;height:30px"><img src="/assets/bg_shop.png"></div>
+  <div class="bld" style="left:106px;top:626px;width:48px;height:26px"><img src="/assets/bg_apt.png"></div>
+  <div class="bld" style="left:160px;top:624px;width:38px;height:28px"><img src="/assets/bg_house.png"></div>
+  <div class="bld" style="left:204px;top:628px;width:28px;height:26px"><img src="/assets/bg_shop.png"></div>
+  <div class="bld" style="left:264px;top:624px;width:44px;height:28px"><img src="/assets/bg_apt.png"></div>
+  <div class="bld" style="left:314px;top:622px;width:40px;height:30px"><img src="/assets/bg_house.png"></div>
+  <div class="bld" style="left:362px;top:626px;width:42px;height:26px"><img src="/assets/bg_shop.png"></div>
+  <div class="bld" style="left:412px;top:624px;width:36px;height:28px"><img src="/assets/bg_apt.png"></div>
+  <div class="bld" style="left:456px;top:628px;width:26px;height:26px"><img src="/assets/bg_house.png"></div>
+  <!-- Small park at bottom -->
+  <div class="garden lawn" style="left:20px;top:658px;width:90px;height:16px;background:rgba(200,218,178,.5)"></div>
+  <div class="tree css wutong" style="left:30px;top:656px;width:11px;height:11px"></div>
+  <div class="tree css parasol" style="left:48px;top:658px;width:9px;height:9px"></div>
+  <div class="tree css wutong" style="left:64px;top:656px;width:10px;height:10px"></div>
+
+  <!-- ═══ STREET TREES (梧桐街两侧) ═══ -->
+  <div class="tree css wutong" style="left:24px;top:254px;width:12px;height:12px"></div>
+  <div class="tree css wutong" style="left:52px;top:256px;width:10px;height:10px"></div>
+  <div class="tree css wutong" style="left:80px;top:254px;width:11px;height:11px"></div>
+  <div class="tree css wutong" style="left:140px;top:256px;width:12px;height:12px"></div>
+  <div class="tree css wutong" style="left:260px;top:254px;width:11px;height:11px"></div>
+  <div class="tree css wutong" style="left:290px;top:256px;width:10px;height:10px"></div>
+  <div class="tree css wutong" style="left:340px;top:254px;width:12px;height:12px"></div>
+  <div class="tree css wutong" style="left:390px;top:256px;width:10px;height:10px"></div>
+  <div class="tree css wutong" style="left:440px;top:254px;width:11px;height:11px"></div>
+
+  <!-- ═══ STREET TREES (南岸路两侧) ═══ -->
+  <div class="tree css banyan" style="left:30px;top:94px;width:10px;height:10px"></div>
+  <div class="tree css banyan" style="left:100px;top:96px;width:9px;height:9px"></div>
+  <div class="tree css banyan" style="left:180px;top:94px;width:10px;height:10px"></div>
+  <div class="tree css banyan" style="left:280px;top:96px;width:9px;height:9px"></div>
+  <div class="tree css banyan" style="left:350px;top:94px;width:10px;height:10px"></div>
+  <div class="tree css banyan" style="left:430px;top:96px;width:9px;height:9px"></div>
+
+  <!-- Road labels -->
+  <div style="position:absolute;left:48%;top:118px;transform:translateX(-50%);font-size:7px;color:rgba(120,100,70,.4);z-index:10;pointer-events:none;font-weight:600;letter-spacing:2px">南 岸 路</div>
+  <div style="position:absolute;left:48%;top:278px;transform:translateX(-50%);font-size:7px;color:rgba(120,100,70,.4);z-index:10;pointer-events:none;font-weight:600;letter-spacing:2px">梧 桐 街</div>
+
+</div>
+
+<!-- ═══ LEGEND ═══ -->
+<div class="legend">
+  <h3>南岸艺术区 — 街区设计</h3>
+  <table>
+  <tr><th>街区</th><th>位置</th><th>栋</th><th>特征</th></tr>
+  <tr><td class="h">1</td><td>南岸路北·西</td><td class="h">8</td><td>住宅+商铺 沿三边路密排</td></tr>
+  <tr><td class="h">2</td><td>南岸路北·东</td><td class="h">9</td><td>住宅区 庭院+花圃</td></tr>
+  <tr><td class="h">3</td><td>南岸路南·梧桐街北·西</td><td class="h">10</td><td>⭐老洋房 + 商铺 + 庭院树</td></tr>
+  <tr><td class="h">4</td><td>南岸路南·梧桐街北·东</td><td class="h">8</td><td>住宅+公寓 整齐排列</td></tr>
+  <tr><td class="h">5</td><td>梧桐街南·画室巷北·西</td><td class="h">8</td><td>⭐小贝Loft + 商铺</td></tr>
+  <tr><td class="h">6</td><td>梧桐街南·画室巷北·东</td><td class="h">8</td><td>⭐气球海展览馆 + 住宅</td></tr>
+  <tr><td class="h">7</td><td>画室巷南·工坊巷北·西</td><td class="h">8</td><td>⭐咖啡馆 + ⭐陶艺工坊</td></tr>
+  <tr><td class="h">8</td><td>画室巷南·工坊巷北·东</td><td class="h">8</td><td>住宅+公寓</td></tr>
+  <tr><td class="h">9</td><td>工坊巷南·南滨巷北·西</td><td class="h">7</td><td>⭐独立画室 + 商铺</td></tr>
+  <tr><td class="h">10</td><td>工坊巷南·南滨巷北·东</td><td class="h">7</td><td>⭐MAO Livehouse</td></tr>
+  <tr><td class="h">11</td><td>南滨巷南</td><td class="h">10</td><td>沿街商铺+住宅+南端小公园</td></tr>
+  <tr style="font-weight:700;border-top:2px solid rgba(255,255,255,.15)"><td colspan="2">合计 11街区 91栋 + 7地标</td><td class="h">98</td><td></td></tr>
+  </table>
+
+  <p style="font-size:10px;color:#888;margin-top:10px">
+    <b>道路用 tex_road.png</b> 做纹理叠加（opacity:.55）<br>
+    <b>3类建筑图</b> → 豆包替换为民国风PNG<br>
+    <b>⭐7地标</b> → 4个已有PNG，3个待生成<br>
+    <b>行道树</b> → 梧桐街(法国梧桐) 南岸路(香樟)<br>
+    建筑投影(box-shadow) + 内庭院 = 真实小区感
+  </p>
+</div>
+
+</div>
+</body>
+</html>
